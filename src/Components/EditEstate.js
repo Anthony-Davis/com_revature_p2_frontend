@@ -7,56 +7,58 @@ import ThumbnailUrlBlock from "./ThumbnailUrlBlock"
 import { Link } from "react-router-dom"
 
 
-const EditEstate = ({User}) => {
+const EditEstate = ({AddListing}) => {
 
-    const nav = useLocation()
+    const location = useLocation()
 
-
-    const [showListing, editListing] = useState({
-        ID: "",
-        Firm: "",
-        Name: "",
-        Address: "",
-        Owner: "",
-        State: "",
-        Title: "",
-        Baths: "",
-        Beds: "",
-        Offices: "",
-        Footage: "",
-        Price: "",
-        Longitude: "",
-        Latitude: "",
-        Zip: "",
-        Urls: []
-    });
-
+    const [showListing, editListing] = useState(location.state);
+    // console.log(showListing.managedListings.filter(lst => lst.listingId == showListing.ID).map(list => (list.address)))
+    console.log(showListing)
+    
     const ListingUpdate = {
-        ID: "",
-        Firm: "",
-        Name: "",
-        Address: "",
-        Owner: "",
-        State: "",
-        Title: "",
-        Baths: "",
-        Beds: "",
-        Offices: "",
-        Footage: "",
-        Price: "",
-        Longitude: "",
-        Latitude: "",
-        Zip: "",
-        Urls: []
+        realtorId: showListing.realtorId,
+        address: "",
+        yearBuilt: "",
+        bathrooms: "",
+        bedrooms: "",
+        squareFt: "",
+        price: "",
+        longitude: "",
+        latitude: "",
+        // Urls: []
     }
-
     const REQUEST_DESTINATION = "http://localhost:8080";
     var newURL = ""
 
     function AlterListing (field, value) {
         //ListingUpdate = showListing;
-        ListingUpdate[`${field}`] = value;
-        console.log(ListingUpdate);
+        if(AddListing) {
+            ListingUpdate[`${field}`] = value;
+        } else {
+            let sampleUser = Object.assign({}, showListing);
+            sampleUser[`${field}`] = value;
+            editListing(sampleUser)
+        }
+
+        console.log(ListingUpdate)
+
+        // else{
+        //     let list = Object.assign({}, showListing)
+            
+        //     list.managedListings.filter(lst => lst.listingId == showListing.ID)
+        //     list.field = value
+    
+        //     const newstate = showListing;
+            
+        //     newstate.managedListings.forEach(lst => {
+        //         if(lst.listingId == showListing.ID)
+        //             lst=list
+                    
+        //         })
+    
+        //     editListing(newstate)
+            // console.log(ListingUpdate);
+        // }
     }
 
     function AddUrl () {
@@ -69,9 +71,12 @@ const EditEstate = ({User}) => {
         console.log(ListingUpdate.Urls);
     }
 
+    
+    
     async function CreateListing() {
-        
-        const response = await fetch(REQUEST_DESTINATION ,{
+        console.log("create")
+
+        const response = await fetch(REQUEST_DESTINATION + "/listings" ,{
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -85,16 +90,11 @@ const EditEstate = ({User}) => {
             body: JSON.stringify(ListingUpdate) // body data type must match "Content-Type" header
         });
 
-        const body = await response.json()// parses JSON response into native JavaScript objects
-        editListing(ListingUpdate);
-        console.log(body)
     }
 
     async function updateListing() {
-        
-        const REQUEST_DESTINATION = "http://localhost:8080";
-
-        const response = await fetch(REQUEST_DESTINATION ,{
+        console.log("update")
+        const response = await fetch(REQUEST_DESTINATION.concat("listings/" + showListing.ID) ,{
             method: 'PUT', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -105,18 +105,14 @@ const EditEstate = ({User}) => {
             },
             redirect: 'follow', // manual, *follow, error
             referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-            body: JSON.stringify(ListingUpdate) // body data type must match "Content-Type" header
+            body: JSON.stringify(showListing.managedListings.filter(lst => lst.listingId == showListing.ID)) // body data type must match "Content-Type" header
         });
 
-        const body = await response.json()// parses JSON response into native JavaScript objects
-        editListing(ListingUpdate);
-        console.log(body)
     }
     
     return (
         <>
-        
-        
+             
         <div className="EditEstatePage">
         
             <div className="EditEstateHeader">
@@ -128,7 +124,7 @@ const EditEstate = ({User}) => {
             <br/>
             <div className="userBorder1"></div>
             <div className="EditEstatePocket">
-            <div className='CreatListingBtn ProfileReturnBtn'><Link to="/User"  >Profile<GiReturnArrow></GiReturnArrow></Link></div>
+            <div className='CreatListingBtn ProfileReturnBtn'><Link to="/User" state={location.state} >Profile<GiReturnArrow></GiReturnArrow></Link></div>
                 <b><label>BROKER REGISTRATION FORM</label></b>
                 <br/>
                 <label>Please indicate below what Firm you represent...</label>
@@ -149,11 +145,13 @@ const EditEstate = ({User}) => {
                     <div className="FormInlineFlex">
                         <div className="EstateRegSlot">
                             <span className="RegSlotspan">NAME</span>
-                            <input className="EstateField" name="Name" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="NAME"></input>
+                            <input className="EstateField" 
+                            name="Name" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="NAME"></input>
                         </div>
                         <div className="EstateRegSlot2">
                             <span className="RegSlotspan">ADDRESS</span>
-                            <input className="EstateField" name="Address" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="ADDRESS"></input>
+                            <input className="EstateField" 
+                            name="address" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="ADDRESS"></input>
                         </div>
                         <div className="EstateRegSlot">
                             <span className="RegSlotspan">OWNER</span>
@@ -175,18 +173,21 @@ const EditEstate = ({User}) => {
                             </select>
                         </div>
                         <div className="EstateRegSlot">
-                            <span className="RegSlotspan">TITLE NUMBER</span>
-                            <input className="EstateField" name="TITLE" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="TITLE"></input>
+                            <span className="RegSlotspan">YEAR</span>
+                            <input className="EstateField"
+                            name="yearBuilt" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="YEAR"></input>
                         </div>
                     </div>
                     <div className="FormInlineFlex">
                         <div className="EstateRegSlot">
                             <span className="RegSlotspan">BATHS</span>
-                            <input className="EstateField" name="Baths" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="BATHS"></input>
+                            <input className="EstateField" 
+                            name="bathrooms" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="BATHS"></input>
                         </div>
                         <div className="EstateRegSlot">
                             <span className="RegSlotspan">BEDS</span>
-                            <input className="EstateField" name="Beds" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="BEDS"></input>
+                            <input className="EstateField" 
+                            name="bedrooms" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="BEDS"></input>
                         </div>
                         <div className="EstateRegSlot">
                             <span className="RegSlotspan">OFFICES</span>
@@ -194,11 +195,13 @@ const EditEstate = ({User}) => {
                         </div>
                         <div className="EstateRegSlot">
                             <span className="RegSlotspan">FOOTAGE</span>
-                            <input className="EstateField" name="Footage" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="FOOTAGE"></input>
+                            <input className="EstateField" 
+                             name="squareFt" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="FOOTAGE"></input>
                         </div>
                         <div className="EstateRegSlot">
                             <span className="RegSlotspan">PRICE</span>
-                            <input className="EstateField" name="Price" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="PRICE"></input>
+                            <input className="EstateField"  
+                            name="price" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="PRICE"></input>
                         </div>
                     </div>
                     <br/><br/>
@@ -208,11 +211,13 @@ const EditEstate = ({User}) => {
                     <div className="FormInlineFlex">
                         <div className="EstateRegSlot2">
                             <span className="RegSlotspan">LONGITUDE</span>
-                            <input className="EstateField" name="Longitude" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="Longitude"></input>
+                            <input className="EstateField" 
+                            name="longitude" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="Longitude"></input>
                         </div>
                         <div className="EstateRegSlot2">
                             <span className="RegSlotspan">LATITUDE</span>
-                            <input className="EstateField" name="Latitude" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="Latitude"></input>
+                            <input className="EstateField"  
+                             name="latitude" type="text" onChange={(e) => AlterListing(e.target.name, e.target.value)} placeholder="Latitude"></input>
                         </div>
                         <div className="EstateRegSlot">
                             <span className="RegSlotspan">ZIP CODE</span>
@@ -233,7 +238,7 @@ const EditEstate = ({User}) => {
                     <br/><br/>
                     <b><label>Previews:</label></b><br/><br/>
                     <div className="FormInlineFlex">
-                        {showListing.Urls.map( url => {return <ThumbnailUrlBlock URL = {url} index={showListing.Urls.indexOf(url)}></ThumbnailUrlBlock>
+                        {showListing.Urls && showListing.Urls.map( url => {return <ThumbnailUrlBlock URL = {url} index={showListing.Urls.indexOf(url)}></ThumbnailUrlBlock>
                         })}
                     </div>
                     
@@ -241,9 +246,12 @@ const EditEstate = ({User}) => {
                 </div>
                 <br/><br/>
                 <br/><br/>
-                {//hippo}
-                    }       
-                <button className='CreatListingBtn' onClick={()=>editListing(ListingUpdate)} ><VscSaveAs></VscSaveAs>Submit Listing</button>
+                {AddListing &&
+                <button className='CreatListingBtn' onClick={()=> CreateListing()} ><VscSaveAs></VscSaveAs>Submit Listing</button>}
+
+                {!AddListing &&
+                <button className='CreatListingBtn' onClick={()=> updateListing()} ><VscSaveAs></VscSaveAs>Submit Listing</button>}
+
             </div>
 
             <div className="userBorder2"></div>
