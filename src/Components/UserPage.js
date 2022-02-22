@@ -5,17 +5,12 @@ import { Link, useLocation } from 'react-router-dom';
 import UserListings from './UserListings';
 
 const UserPage = () => {
-//sample user could also be passed as arguement ideally when connected to a backend
-//const UserPage = ({sampleUser}) => {...}
 
     const location = useLocation()
-    // console.log(location.state)
     const [showUser, editUser] = useState(location.state);
     console.log(showUser)
 
     const REQUEST_DESTINATION = "http://localhost:8080/profile/";
-
-    //"https://swapi.dev/api/people/1/?format=json"
 
     function AlterUser (field, value) {
 
@@ -29,20 +24,18 @@ const UserPage = () => {
 
     async function UpdateUser() {
 
-        const response = await fetch(showUser.clientId ? REQUEST_DESTINATION.concat(showUser.clientId) : REQUEST_DESTINATION.concat(showUser.realtorId),{
-            method: 'PUT', // *GET, POST, PUT, DELETE, etc.
-            mode: 'cors', // no-cors, *cors, same-origin
-            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: 'omit', // include, *same-origin, omit
-            headers: {
-            'Content-Type': 'application/json'
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            redirect: 'follow', // manual, *follow, error
-            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-            body: JSON.stringify(showUser) // body data type must match "Content-Type" header
+        const response = await fetch(
+            showUser.clientId ? REQUEST_DESTINATION.concat(showUser.clientId)
+            : REQUEST_DESTINATION.concat(showUser.realtorId), {
+            method: 'PUT', 
+            mode: 'cors', 
+            cache: 'no-cache', 
+            credentials: 'omit', 
+            headers: {'Content-Type': 'application/json'},
+            redirect: 'follow', 
+            referrerPolicy: 'no-referrer', 
+            body: JSON.stringify(showUser) 
         });
-            
     }
 
     async function DeleteListing(listingID) {
